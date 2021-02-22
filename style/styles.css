@@ -1,0 +1,9 @@
+.single-div{
+  padding:2% !important;
+  margin-top:3% !important;
+}
+
+.editableDateStart,
+.editableDateEnd{
+margin-left: 2%;
+}
