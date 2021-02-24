@@ -1,13 +1,49 @@
 class Task{
   constructor(args){
-    if (ValidateValuesClass.validationOfUserInputs({'string':args[0], 'date':[args[1], args[2]]}) && 
-    ValidateValuesClass.validateIfEmpty()){
-      this.taskName = args[0];
-      this.taskDate1 = args[1];
-      this.taskDate2 = args[2];
+    if (args instanceof NodeList){
+      if (ValidateValuesClass.validationOfUserInputs({'string':args[0], 'date':[args[1], args[2]]}) && 
+      ValidateValuesClass.validateIfEmpty()){
+        this.taskName = args[0].value;
+        this.taskDate1 = args[1].value;
+        this.taskDate2 = args[2].value;
+      }
+    }
+    else{
+      if (ValidateValuesClass.validationOfUserInputs({'string':arguments[0]}) && 
+      ValidateValuesClass.validateIfEmpty('single')){
+        this.taskName = arguments[0];
+        this.taskDate1 = arguments[1];
+        this.taskDate2 = arguments[2];
+      }
     }
   }
 }
+
+function saveObj(object){ // добавление новой таски
+
+  // Retrieve the object from storage
+  let arrofTasks = []
+  let retrievedObject = localStorage.getItem('SetofTasks');
+  
+  if (localStorage.getItem("SetofTasks") != null) {
+    arrofTasks=JSON.parse(retrievedObject)
+  }
+
+  arrofTasks.push(object)
+  // Put the object into storage
+  localStorage.setItem('SetofTasks', JSON.stringify(arrofTasks));
+  
+
+}
+
+function LoadObj(){
+    // Retrieve the object from storage
+
+    var retrievedObject = localStorage.getItem('SetofTasks');
+    parsedObj = JSON.parse(retrievedObject); //получили из Л.С ерей тасок
+    return parsedObj;
+}
+
 
 
 function getNameId() {
@@ -39,7 +75,9 @@ function areDatesValid(){
 getNameId().addEventListener("keydown", function (e) {
   if (e.key == 'Enter') {
     isTaskNameValid();
-    createNewTask()
+    let singleTask = new Task(document.querySelector('#nameId').value,getDay('today'),getDay('tomorrow'));
+    saveObj(singleTask)
+    location.reload()
   }
 });
 
@@ -69,7 +107,7 @@ function clearTime(){
   time.forEach(e =>{e.value = ''})
 }
 
-function createNewTask(){
+function createNewTask(singleObject){
   let nodeContainer = document.querySelector(".container")
 
     let rowNewBlock = document.createElement("div");
@@ -84,7 +122,7 @@ function createNewTask(){
     let inputTaskName = document.createElement("INPUT");
     inputTaskName.setAttribute("type", "text");document.querySelector('#editDateEnd').valueAsDate
     //Потом нужно будет считывать из LS и ставить уникальный индетификатор
-    inputTaskName.setAttribute("value", document.querySelector("#nameId").value);
+    inputTaskName.setAttribute("value", singleObject.taskName);
     inputTaskName.setAttribute("class", 'form-control');
     inputTaskName.setAttribute("readonly", true); 
     
@@ -97,14 +135,16 @@ function createNewTask(){
     //Потом нужно будет считывать из LS и ставить уникальный индетификатор
     inputDateStartName.setAttribute("name","name1")
     inputDateStartName.setAttribute("readonly", true); 
-    if (document.querySelector("#editDateStart").value == '' && document.querySelector("#editDateEnd").value == ''){
+    inputDateStartName.setAttribute("value", singleObject.taskDate1); 
+    /*if (document.querySelector("#editDateStart").value == '' && document.querySelector("#editDateEnd").value == ''){
       inputDateStartName.setAttribute("value", getDay('today'));
       //textContent
     }
     else{
       inputDateStartName.setAttribute("value", document.querySelector('#editDateStart').value);
     }
-
+    */
+   
 
     let Col2DivDue = document.createElement("div");
     Col2DivDue.setAttribute("class", 'col-2');
@@ -114,6 +154,10 @@ function createNewTask(){
     //Потом нужно будет считывать из LS и ставить уникальный индетификатор
     inputDateDueName.setAttribute("name","name1")
     inputDateDueName.setAttribute("readonly", true); 
+    inputDateDueName.setAttribute("value", singleObject.taskDate2);
+    
+
+    /*
     if (document.querySelector("#editDateStart").value == '' && document.querySelector("#editDateEnd").value == ''){
       inputDateDueName.setAttribute("value", getDay('tomorrow'));
       //textContent
@@ -121,6 +165,7 @@ function createNewTask(){
     else{
       inputDateDueName.setAttribute("value", document.querySelector('#editDateEnd').value);
     }
+    */
     
     rowNewBlock.appendChild(Col5Div)
     Col5Div.appendChild(GroupDiv)
@@ -140,10 +185,17 @@ document.getElementById('ConfirmChanges').addEventListener('click',function(e){
   let inputFields = document.querySelectorAll("#nameId, #editDateStart, #editDateEnd")
   if (isFieldValid()){
     let singleTask = new Task(inputFields);
-
-    createNewTask()
+    saveObj(singleTask)
+    location.reload();
 
   }
   
 })
 
+window.onload = function() {
+  let arrofTasks = LoadObj()
+  for (let i in arrofTasks){
+    createNewTask(arrofTasks[i])
+  }
+  
+}
