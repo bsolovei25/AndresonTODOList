@@ -1,39 +1,41 @@
-class ValidateValuesClass{
-  static validationOfUserInputs(args){
-    if (Object.keys(args).length == 1){
-      if (!typeof args[Object.keys(args)[0]] == Object.keys(args)[0]){
+class ValidateValuesClass {
+  static validationOfUserInputs (args) {
+    if (Object.keys(args).length === 1) {
+      //проверить == вместо ===
+      if (!typeof args[Object.keys(args)[0]] === Object.keys(args)[0]) {
+        //проверить == вместо ===
         throw `${args[0]} must be typed as ${Object.keys(args)[0]}`
       }
-    }
-    else{
-      for (let key in args){
-        if (args[key] instanceof Array){
-          for (let k = 0; k < args[key].length; k++){
-            if (args[key][k].type != key){
+    } else {
+      for (let key in args) {
+        if (args[key] instanceof Array) {
+          for (let k = 0; k < args[key].length; k++) {
+            if (args[key][k].type !== key) {
+              //проверить == вместо ===
               throw `${args[key][k].value} must be typed as ${key}`
             }
           }
         }
-        if (!typeof args[key].value == key){
+        if (!typeof args[key].value === key) {
           throw `${args[key]} must be typed as ${key}`
         }
       }
     }
-    return true;
+    return true
   }
 
-  static validateIfEmpty(args){
+  static validateIfEmpty (args) {
     let inputFields
-    if(args == 'single'){
-      inputFields = document.querySelectorAll("#nameId")
+    if (args === SINGLE) {
+      inputFields = document.querySelectorAll(NAMEID)
+    } else {
+      inputFields = document.querySelectorAll(ALLINPUTSIDS)
     }
-    else{
-      inputFields = document.querySelectorAll("#nameId, #editDateStart, #editDateEnd")
-    }
-    inputFields.forEach(e => {if (e.value==''){alert('fields must not be empty');return false}})
-    
-    return true;
+    inputFields.forEach(e => {
+      if (e.value === '') {
+        return false
+      }
+    })
+    return true
   }
-
-  
 }
