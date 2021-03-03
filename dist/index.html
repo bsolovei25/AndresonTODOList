@@ -22,7 +22,7 @@
         <div class="col-4">
             <!--<form id="myform" method="get">-->
             <!--<div class="input-group">-->
-              <input type="text" class="form-control" id="nameId" aria-describedby="basic-addon3" placeholder="Ivan Ivanovich" pattern="^[a-zA-Z0-9]*$" required>
+            <input type="text" class="form-control" id="nameId" aria-describedby="basic-addon3" placeholder="Ivan Ivanovich" pattern="^[a-zA-Z0-9]*$" required>
             <!--</div>-->
             <!--</form>-->
         </div>
@@ -49,18 +49,18 @@
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-              <div class="modal-body">
+              <div class="modal-body modal-error-change-task">
                 <div class="d-flex justify-content-center">
                   <input type="text" class="classEditInputText" id="idEditInputText" pattern="^[a-zA-Z0-9]*$">
                 </div>
                 <div class="d-flex justify-content-between">
-                  <input type="date" class="changeEditableDateStart" id="changeEditDateStart" onchange="isDateValid(event);" name="date6">
-                  <input type="date" class="changeEditableDateEnd" id="changeEditDateEnd" onchange="isDateValid(event);" name="date7">
+                  <input type="date" class="changeEditableDateStart" id="changeEditDateStart" onchange="isChangeDateValid(event);" name="date6">
+                  <input type="date" class="changeEditableDateEnd" id="changeEditDateEnd" onchange="isChangeDateValid(event);" name="date7">
                 </div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" id = "ConfirmChanges"> Save changes</button>
+                <button type="submit" class="btn btn-primary classConfirmChanges" id = "ConfirmChanges"> Save changes</button>
               </div>
             </div>
           </div>

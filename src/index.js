@@ -63,13 +63,41 @@ document.addEventListener(KEYUP, function (e) {
   isInputEmpty()
 })
 
+function isChangeDateValid(e) {
+  const dates = document.querySelectorAll(CHANGEDATESTARTEND)
+  let ok = TRUE
+  const errorMessageModalNotNull = document.querySelector(ERRORMESSAGEMODALCHANGE) !== null
+  const modalElementChildren = MODALELEMENTSCHANGE[0].children
+  const datesValidAndModalExistAdd = areDatesValid(CHANGE) || errorMessageModalNotNull || !ValidateInputChange()
+  const datesValidAndModalExistRemove = areDatesValid(CHANGE) && errorMessageModalNotNull && !ValidateInputChange()
+  //Завтра проверить на валидность все в ченже
+
+  for (let i in dates) {
+    if (dates[i].value === '') {
+      document.querySelector(CLASSCONFIRMCHANGES).disabled = TRUE
+      ok = FALSEV
+      break
+    }
+  }
+  if (ok) {
+    document.querySelector(CLASSCONFIRMCHANGES).disabled = FALSEV
+    if (!datesValidAndModalExistAdd) {
+      generateErrorModal()
+    } else {
+      if (datesValidAndModalExistRemove) {
+        MODALELEMENTSCHANGE[ZERO_INDEX].removeChild(modalElementChildren[modalElementChildren.length - ONE_INDEX])
+      }
+    }
+  }
+}
+
 function isDateValid(e) {
   const dates = document.querySelectorAll(EDITDATESTARTEND)
   let ok = TRUE
   const errorMessageModalNotNull = document.querySelector(ERRORMESSAGEMODAL) !== null
   const modalElementChildren = MODALELEMENTS[0].children
-  const datesValidAndModalExistAdd = areDatesValid() || errorMessageModalNotNull
-  const datesValidAndModalExistRemove = areDatesValid() && errorMessageModalNotNull
+  const datesValidAndModalExistAdd = areDatesValid(INSERT) || errorMessageModalNotNull
+  const datesValidAndModalExistRemove = areDatesValid(INSERT) && errorMessageModalNotNull
 
   for (let i in dates) {
     if (dates[i].value === '') {
@@ -117,6 +145,17 @@ function getNameId () {
   return document.querySelector(NAMEID)
 }
 
+function getIdInputText () {
+  return document.querySelector(IDEDITINPUTTEXT)
+}
+
+function ValidateInputChange () {
+  const ifValidityTrue = getIdInputText().validity.patternMismatch ||
+  getIdInputText().validity.valueMissing
+
+  return ifValidityTrue
+}
+
 function generateErrorMainBlock () {
   const ifValidityTrue = getNameId().validity.patternMismatch ||
   getNameId().validity.valueMissing
@@ -136,6 +175,7 @@ function generateErrorMainBlock () {
     row.appendChild(errorMessage)
     CONTAINER.children[ZERO_INDEX].appendChild(row)
     document.querySelectorAll(PLUSBUTTON)[ZERO_INDEX].disabled = TRUE
+
     return FALSEV
   }
   document.querySelectorAll(PLUSBUTTON)[ZERO_INDEX].disabled = FALSEV
@@ -165,9 +205,13 @@ function isFieldValid () {
 }
 
 function areDatesValid (modalExists) {
-  const date = document.querySelectorAll(EDITDATESTARTEND)
-  const ifFinishBiggerThanStart = date[ONE_INDEX].valueAsNumber > date[ZERO_INDEX].valueAsNumber
-
+  if (modalExists === INSERT) {
+    const date = document.querySelectorAll(EDITDATESTARTEND)
+    const ifFinishBiggerThanStart = date[ONE_INDEX].valueAsNumber > date[ZERO_INDEX].valueAsNumber
+  } else {
+    const date = document.querySelectorAll(CHANGEDATESTARTEND)
+    const ifFinishBiggerThanStart = date[ONE_INDEX].valueAsNumber > date[ZERO_INDEX].valueAsNumber
+  }
   if (ifFinishBiggerThanStart) {
     return TRUE
   }
@@ -242,6 +286,7 @@ function checkInputCreate (singleObject) {
   inputTaskName.setAttribute(TYPE, TEXT)
   //Потом нужно будет считывать из LS и ставить уникальный индетификатор
   inputTaskName.setAttribute(VALUE, singleObject.taskName)
+  inputTaskName.setAttribute(ID, `createInput${singleObject.taskId}`)
   inputTaskName.setAttribute(CLASS, FORMCONTROL)
   inputTaskName.setAttribute(READONLY, TRUE)
   if (singleObject.isChecked === TRUESTRING) {
@@ -261,6 +306,7 @@ function Date1Create (singleObject) {
   let inputDateStartName = document.createElement(INPUT)
   inputDateStartName.setAttribute(TYPE, DATE)
   inputDateStartName.setAttribute(NAME, NAME1)
+  inputDateStartName.setAttribute(ID, `createInputDateStart${singleObject.taskId}`)
   inputDateStartName.setAttribute(READONLY, TRUE)
   inputDateStartName.setAttribute(VALUE, singleObject.taskDate1)
   Col2DivStart.appendChild(inputDateStartName)
@@ -274,6 +320,7 @@ function Date2Create (singleObject) {
   let inputDateDueName = document.createElement(INPUT)
   inputDateDueName.setAttribute(TYPE, DATE)
   inputDateDueName.setAttribute(NAME, NAME1)
+  inputDateDueName.setAttribute(ID, `createInputDateDue${singleObject.taskId}`)
   inputDateDueName.setAttribute(READONLY, TRUE)
   inputDateDueName.setAttribute(VALUE, singleObject.taskDate2)
   Col2DivDue.appendChild(inputDateDueName)
@@ -332,20 +379,39 @@ function createNewTask (singleObject) {
 
 document.addEventListener(CLICK, function (e) {
   let currectTasks = LoadObj()
+  const className = e.target.className
+  const idName = e.target.id
+
   for (let i in currectTasks) {
-    if (e.target.className === CROSS) {
-      if (getLastLetterId(e.target.id) === '' + currectTasks[i].taskId) {
+    if (className === CROSS) {
+      if (getLastLetterId(idName) === '' + currectTasks[i].taskId) {
         currectTasks.splice(i, 1)
         localStorage.setItem(LSSTRING, JSON.stringify(currectTasks))
         location.reload()
       }
     }
   }
-  if (e.target.className === BUTTONCLASSCONFIRM) {
+  if (className === BUTTONCLASSCONFIRM) {
     const inputFields = document.querySelectorAll(ALLIDS)
     const singleTask = new Task(inputFields)
     saveObj(singleTask)
     location.reload()
+  }
+  if (className === FAFAPENCIL) {
+    const elementId = getLastLetterId(e.target.id)
+    const inputFieldsTaskName = document.querySelector('#' + IDEDITINPUTTEXT)
+    const inputFieldsTaskDate1 = document.querySelector('#' + CHANGEEDITABLEDATESTART)
+    const inputFieldsTaskDate2 = document.querySelector('#' + CHANGEEDITABLEDATEEND)
+    const cretatedInputName = document.querySelector('#' + CREATEDINPUTNAME + elementId).value
+    const cretatedInputDate1 = document.querySelector('#' + CREATEINPUTDATESTART + elementId).value
+    const cretatedInputDate2 = document.querySelector('#' + CREATEINPUTDATEDUE + elementId).value
+
+    inputFieldsTaskName.value = cretatedInputName
+    inputFieldsTaskDate1.value = cretatedInputDate1
+    inputFieldsTaskDate2.value = cretatedInputDate2
+
+    e.target
+
   }
 })
 
