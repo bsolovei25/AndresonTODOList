@@ -1,9 +1,10 @@
 class ValidateValuesClass {
   static validationOfUserInputs (args) {
-    if (Object.keys(args).length === 1) {
-      //проверить == вместо ===
-      if (!typeof args[Object.keys(args)[0]] === Object.keys(args)[0]) {
-        //проверить == вместо ===
+    const keyArgsLen = Object.keys(args).length === 1
+    const areFirstKeysEq = !typeof args[Object.keys(args)[0]] === Object.keys(args)[0]
+
+    if (keyArgsLen) {
+      if (areFirstKeysEq) {
         throw `${args[0]} must be typed as ${Object.keys(args)[0]}`
       }
     } else {
@@ -21,16 +22,19 @@ class ValidateValuesClass {
         }
       }
     }
-    return true
+    return TRUE
   }
 
   static validateIfEmpty (args) {
     const inputFields = document.querySelectorAll(ALLINPUTSIDS)
+
     inputFields.forEach(e => {
-      if (e.value === '') {
-        return false
+      const eIsEmpty = e.value === ''
+
+      if (eIsEmpty) {
+        return FALSEV
       }
     })
-    return true
+    return TRUE
   }
 }

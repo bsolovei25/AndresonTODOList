@@ -2,12 +2,13 @@
 
 class Task {
   constructor (args) {
-    const instanceNode = args instanceof NodeList;
+    const instanceNode = args instanceof NodeList
     //const argsValues = [args[0].value, args[1].value, args[2].value]
     //const argsArray = [args[0], args[1], args[2]]
-    const [{ value: taskName }, { value: taskDate1 }, { value: taskDate2 }] = args
     if (instanceNode) {
+      const [{ value: taskName }, { value: taskDate1 }, { value: taskDate2 }] = args
       const [string, ...date] = args
+
      // const validateClassInputs = ValidateValuesClass.validationOfUserInputs({ string, date }) &&
     //ValidateValuesClass.validateIfEmpty()
       if (this.inputUserValidation({ string, date })) {
@@ -239,8 +240,128 @@ function clearTime () {
   })
 }
 
-function createNewTask (singleObject) {
+function RowNewBLockCreate () {
   let rowNewBlock = document.createElement(DIVSTRING)
+  rowNewBlock.className = ROWSINGLEDIV
+  return rowNewBlock
+}
+
+function checkBoxCreate (singleObject) {
+  let Col1DivCheck = document.createElement(DIVSTRING)
+  Col1DivCheck.className = COL1DIVCHECK
+  let FormCheck = document.createElement(DIVSTRING)
+  FormCheck.className = FORMCHECK
+  let inputCheckBox = document.createElement(INPUT)
+
+  inputCheckBox.setAttribute(TYPE, CHECKBOX)
+  //Потом нужно будет считывать из LS и ставить уникальный индетификатор
+  inputCheckBox.setAttribute(VALUE, '')
+  inputCheckBox.setAttribute(ID, `form-check-input-id${singleObject.taskId}`)
+  inputCheckBox.setAttribute(CLASS, FORMCHECKINPUT)
+  inputCheckBox.checked = (singleObject.isChecked === TRUESTRING)
+  Col1DivCheck.appendChild(FormCheck)
+  FormCheck.appendChild(inputCheckBox)
+  return Col1DivCheck
+}
+
+function checkInputCreate (singleObject) {
+  let Col4Div = document.createElement(DIVSTRING)
+  Col4Div.className = COL4DIVCHECK
+
+  let GroupDiv = document.createElement(DIVSTRING)
+  GroupDiv.className = IPUTGROUP
+
+  let inputTaskName = document.createElement(INPUT)
+  inputTaskName.setAttribute(TYPE, TEXT)
+  //Потом нужно будет считывать из LS и ставить уникальный индетификатор
+  inputTaskName.setAttribute(VALUE, singleObject.taskName)
+  inputTaskName.setAttribute(CLASS, FORMCONTROL)
+  inputTaskName.setAttribute(READONLY, TRUE)
+  if (singleObject.isChecked === TRUESTRING) {
+    //проверить == вместо ===
+    inputTaskName.style.textDecoration = LINETHROUGH
+  } else {
+    inputTaskName.style.textDecoration = ''
+  }
+  Col4Div.appendChild(GroupDiv)
+  GroupDiv.appendChild(inputTaskName)
+  return Col4Div
+}
+
+function Date1Create (singleObject) {
+  let Col2DivStart = document.createElement(DIVSTRING)
+  Col2DivStart.setAttribute(CLASS, COL2DIVCHECK)
+
+  let inputDateStartName = document.createElement(INPUT)
+  inputDateStartName.setAttribute(TYPE, DATE)
+  inputDateStartName.setAttribute(NAME, NAME1)
+  inputDateStartName.setAttribute(READONLY, TRUE)
+  inputDateStartName.setAttribute(VALUE, singleObject.taskDate1)
+  Col2DivStart.appendChild(inputDateStartName)
+  return Col2DivStart
+}
+
+function Date2Create (singleObject) {
+  let Col2DivDue = document.createElement(DIVSTRING)
+  Col2DivDue.setAttribute(CLASS, COL2DIVCHECK)
+
+  let inputDateDueName = document.createElement(INPUT)
+  inputDateDueName.setAttribute(TYPE, DATE)
+  inputDateDueName.setAttribute(NAME, NAME1)
+  inputDateDueName.setAttribute(READONLY, TRUE)
+  inputDateDueName.setAttribute(VALUE, singleObject.taskDate2)
+  Col2DivDue.appendChild(inputDateDueName)
+  return Col2DivDue
+}
+
+function CrossCreate (singleObject) {
+  let But1Div = document.createElement(DIVSTRING)
+  But1Div.setAttribute(CLASS, COL1DIVCHECK)
+  let Span1Font = document.createElement(SPAN)
+  let I1Font = document.createElement(I)
+  I1Font.setAttribute(CLASS, CROSS)
+  I1Font.setAttribute(ARIAHIDDEN, TRUESTRING)
+  I1Font.setAttribute(ID, `delete${singleObject.taskId}`)
+  But1Div.appendChild(Span1Font)
+  Span1Font.appendChild(I1Font)
+  return But1Div
+}
+
+function PenCreate (singleObject) {
+  let Edit1Div = document.createElement(DIVSTRING)
+  Edit1Div.setAttribute(CLASS, COL1DIVCHECK)
+  let Span1Edit = document.createElement(SPAN)
+  let I1Edit = document.createElement(I)
+  I1Edit.setAttribute(CLASS, FAFAPENCIL)
+  I1Edit.setAttribute(ARIAHIDDEN, TRUESTRING)
+  I1Edit.setAttribute(ID, `edit${singleObject.taskId}`)
+  I1Edit.setAttribute(DATATARGET, MODALEDIT)
+  I1Edit.setAttribute(DATATOGGLE, MODAL)
+  Edit1Div.appendChild(Span1Edit)
+  Span1Edit.appendChild(I1Edit)
+  return Edit1Div
+}
+
+function BuildNewRow (rowNewBlock, Col1DivCheck, Col4Div, Col2DivStart, Col2DivDue, But1Div, Edit1Div) {
+  rowNewBlock.appendChild(Col1DivCheck)
+  rowNewBlock.appendChild(Col4Div)
+  rowNewBlock.appendChild(Col2DivStart)
+  rowNewBlock.appendChild(Col2DivDue)
+  rowNewBlock.appendChild(But1Div)
+  rowNewBlock.appendChild(Edit1Div)
+  CONTAINER.appendChild(rowNewBlock)
+}
+
+function createNewTask (singleObject) {
+  const rowNewBlock = RowNewBLockCreate()
+  const Col1DivCheck = checkBoxCreate(singleObject)
+  const Col4Div = checkInputCreate(singleObject)
+  const Col2DivStart = Date1Create(singleObject)
+  const Col2DivDue = Date2Create(singleObject)
+  const But1Div = CrossCreate(singleObject)
+  const Edit1Div = PenCreate(singleObject)
+  BuildNewRow(rowNewBlock, Col1DivCheck, Col4Div, Col2DivStart, Col2DivDue, But1Div, Edit1Div)
+  /*let rowNewBlock = document.createElement(DIVSTRING)
   rowNewBlock.className = ROWSINGLEDIV
 
   let Col1DivCheck = document.createElement(DIVSTRING)
@@ -334,7 +455,7 @@ function createNewTask (singleObject) {
   Edit1Div.appendChild(Span1Edit)
   Span1Edit.appendChild(I1Edit)
 
-  CONTAINER.appendChild(rowNewBlock)
+  CONTAINER.appendChild(rowNewBlock)*/
 
   clearTime()
 }
