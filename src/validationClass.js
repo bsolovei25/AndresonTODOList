@@ -25,12 +25,7 @@ class ValidateValuesClass {
   }
 
   static validateIfEmpty (args) {
-    let inputFields
-    if (args === SINGLE) {
-      inputFields = document.querySelectorAll(NAMEID)
-    } else {
-      inputFields = document.querySelectorAll(ALLINPUTSIDS)
-    }
+    const inputFields = document.querySelectorAll(ALLINPUTSIDS)
     inputFields.forEach(e => {
       if (e.value === '') {
         return false

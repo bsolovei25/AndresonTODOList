@@ -1,72 +1,105 @@
-//import { ZERO_INDEX, ONE_INDEX, TWO_INDEX, TEN_INDEX, FALSE, LSSTRING, TODAY, TOMORROW, SINGLE, NAMEID, ERRORINPUT, EDITDATESTARTEND, CROSS } from './constants'
+//import { ZERO_INDEX, ONE_INDEX, TWO_INDEX, TEN_INDEX, FALSEV, LSSTRING, TODAY, TOMORROW, SINGLE, NAMEID, ERRORINPUT, EDITDATESTARTEND, CROSS } from './constants'
 
 class Task {
   constructor (args) {
-    if (args instanceof NodeList) {
-      if (ValidateValuesClass.validationOfUserInputs({ 'string':args[0], 'date':[args[1], args[2]] }) &&
-      ValidateValuesClass.validateIfEmpty()) {
-        this.taskName = args[0].value
+    const instanceNode = args instanceof NodeList;
+    //const argsValues = [args[0].value, args[1].value, args[2].value]
+    //const argsArray = [args[0], args[1], args[2]]
+    const [{ value: taskName }, { value: taskDate1 }, { value: taskDate2 }] = args
+    if (instanceNode) {
+      const [string, ...date] = args
+     // const validateClassInputs = ValidateValuesClass.validationOfUserInputs({ string, date }) &&
+    //ValidateValuesClass.validateIfEmpty()
+      if (this.inputUserValidation({ string, date })) {
+        [this.taskName, this.taskDate1, this.taskDate2] = [taskName, taskDate1, taskDate2]
+        this.isChecked = FALSESTRING
+        /*  this.taskName = args[0].value
         this.taskDate1 = args[1].value
         this.taskDate2 = args[2].value
-        this.isChecked = FALSE
-        if (LoadObj() === null) {
-          this.taskId = ZERO_INDEX
-        } else {
-          this.taskId = LoadObj()[LoadObj().length - ONE_INDEX].taskId + ONE_INDEX
-        }
+        this.isChecked = FALSEV  */
+        this.checkIfTaskIdEmpty()
       }
     } else {
-      if (ValidateValuesClass.validationOfUserInputs({ 'string':arguments[0] }) &&
-      ValidateValuesClass.validateIfEmpty(SINGLE)) {
-        this.taskName = arguments[0]
+      const [string] = arguments
+      if (this.inputUserValidation({ string })) {
+        /*  this.taskName = arguments[0]
         this.taskDate1 = arguments[1]
         this.taskDate2 = arguments[2]
-        this.isChecked = FALSE
-        if (LoadObj() == null) {
-          this.taskId = ZERO_INDEX
-        } else {
-          this.taskId = LoadObj()[LoadObj().length - ONE_INDEX].taskId + ONE_INDEX
-        }
+        this.isChecked = FALSEV  */
+        [this.taskName, this.taskDate1, this.taskDate2] = arguments
+        this.isChecked = FALSESTRING
+        this.checkIfTaskIdEmpty()
       }
+    }
+  }
+
+  inputUserValidation (params) {
+    if (ValidateValuesClass.validationOfUserInputs(params) &&
+      ValidateValuesClass.validateIfEmpty()) {
+      return true
+    }
+    return false
+  }
+
+  checkIfTaskIdEmpty () {
+    const loadedArray = LoadObj()
+    const isNull = loadedArray == null || loadedArray.length === 0
+
+    if (isNull) {
+      this.taskId = ZERO_INDEX
+    } else {
+      const dbLength = loadedArray.length - ONE_INDEX
+
+      this.taskId = loadedArray[dbLength].taskId + ONE_INDEX
     }
   }
 }
 
 function isInputEmpty () {
-  if (document.querySelector(NAMEID).value === '')
-    document.querySelector('.plus-button').disabled = true
+  const namaidIsNone = document.querySelector(NAMEID).value === ''
+  if (namaidIsNone)
+    document.querySelector(PLUSBUTTON).disabled = TRUE
 }
 
-document.addEventListener('keyup', function (e) {
-  if (e.target.validity.patternMismatch) {
-    document.querySelector('.plus-button').disabled = true
+document.addEventListener(KEYUP, function (e) {
+  const ePatternMisMatch = e.target.validity.patternMismatch
+  const deleteDivRed = document.querySelector(ENTERERROR) !== null && document.querySelector(NAMEID).value !== ''
+  const childNodesValue = CONTAINER.children[0].childNodes
+
+  if (ePatternMisMatch) {
+    document.querySelector(PLUSBUTTON).disabled = TRUE
   } else {
-    document.querySelector('.plus-button').disabled = false
-    if (document.querySelector('.errorMessage') !== null && document.querySelector(NAMEID).value !== '')
+    document.querySelector(PLUSBUTTON).disabled = FALSEV
+    if (deleteDivRed)
       //document.querySelector('.errorMessage').style.display = 'none'
-      CONTAINER.children[0].removeChild(CONTAINER.children[0].childNodes[CONTAINER.children[0].childNodes.length - 1])
+      CONTAINER.children[ZERO_INDEX].removeChild(childNodesValue[childNodesValue.length - ONE_INDEX])
       //MODALELEMENTS[0].removeChild(MODALELEMENTS[0].children[MODALELEMENTS[0].children.length - 1])
   }
   isInputEmpty()
 })
 
 function isDateValid(e) {
-  const dates = document.querySelectorAll('#editDateStart, #editDateEnd')
-  let ok = true
+  const dates = document.querySelectorAll(EDITDATESTARTEND)
+  let ok = TRUE
+  const errorMessageModalNotNull = document.querySelector(ERRORMESSAGEMODAL) !== null
+  const modalElementChildren = MODALELEMENTS[0].children
+  const datesValidAndModalExistAdd = areDatesValid() || errorMessageModalNotNull
+  const datesValidAndModalExistRemove = areDatesValid() && errorMessageModalNotNull
+
   for (let i in dates) {
     if (dates[i].value === '') {
-      document.querySelector('.classConfirm').disabled = true
-      ok = false
+      document.querySelector(CLASSCONFIRM).disabled = TRUE
+      ok = FALSEV
       break
     }
   }
   if (ok) {
-    document.querySelector('.classConfirm').disabled = false
-    if (!areDatesValid()) {
+    document.querySelector(CLASSCONFIRM).disabled = FALSEV
+    if (!datesValidAndModalExistAdd) {
       generateErrorModal()
     } else {
-      if (document.querySelector('.errorMessageModal') !== null) {
-        MODALELEMENTS[0].removeChild(MODALELEMENTS[0].children[MODALELEMENTS[0].children.length - 1])
+      if (datesValidAndModalExistRemove) {
+        MODALELEMENTS[ZERO_INDEX].removeChild(modalElementChildren[modalElementChildren.length - ONE_INDEX])
       }
     }
   }
@@ -75,20 +108,25 @@ function isDateValid(e) {
 function saveObj (object) { // добавление новой таски
   // Retrieve the object from storage
   let arrofTasks = []
+  let finalArray = []
+
   const retrievedObject = localStorage.getItem(LSSTRING)
-  if (localStorage.getItem(LSSTRING) !== null) {
+
+  if (retrievedObject !== null) {
     arrofTasks = JSON.parse(retrievedObject)
   }
 
-  arrofTasks.push(object)
+  //arrofTasks.push(object)
+  finalArray = [...arrofTasks, object]
   // Put the object into storage
-  localStorage.setItem(LSSTRING, JSON.stringify(arrofTasks))
+  localStorage.setItem(LSSTRING, JSON.stringify(finalArray))
 }
 
 function LoadObj () {
   // Retrieve the object from storage
   const retrievedObject = localStorage.getItem(LSSTRING)
   const parsedObj = JSON.parse(retrievedObject) //получили из Л.С ерей тасок
+
   return parsedObj
 }
 
@@ -97,52 +135,56 @@ function getNameId () {
 }
 
 function generateErrorMainBlock () {
-  if (getNameId().validity.patternMismatch ||
-  getNameId().validity.valueMissing) {
-    if (document.querySelector('.errorMessage') !== null) {
-      return false
+  const ifValidityTrue = getNameId().validity.patternMismatch ||
+  getNameId().validity.valueMissing
+  const errorMessageNull = document.querySelector(ENTERERROR) !== null
+
+  if (ifValidityTrue) {
+    if (errorMessageNull) {
+      return FALSEV
     }
-    let row = document.createElement('div')
-    row.className = 'row single-div border errorMessage'
-    row.setAttribute('style', 'background-color: red;')
+    let row = document.createElement(DIVSTRING)
+    row.className = ROWCLASSNAME
+    row.setAttribute(STYLE, ROWSTYLE)
 
     //userInput.setCustomValidity(ERRORINPUT)
-    let errorMessage = document.createElement('p')
+    let errorMessage = document.createElement(PSTRING)
 
-    errorMessage.textContent = 'This text is different!'
+    errorMessage.textContent = ERRORMESSAGE
     //errorMessage.setAttribute('style', 'background-color: red;')
-    errorMessage.setAttribute('style', 'width: 15%;background-color: red;z-index:4;top:500px;')
+    errorMessage.setAttribute(STYLE, errorMessageStyle)
     row.appendChild(errorMessage)
-    CONTAINER.children[0].appendChild(row)
-    document.querySelectorAll('.plus-button')[0].disabled = true
-    return false
+    CONTAINER.children[ZERO_INDEX].appendChild(row)
+    document.querySelectorAll(PLUSBUTTON)[ZERO_INDEX].disabled = TRUE
+    return FALSEV
   }
-  document.querySelectorAll('.plus-button')[0].disabled = false
+  document.querySelectorAll(PLUSBUTTON)[ZERO_INDEX].disabled = FALSEV
 
-  return true
+  return TRUE
 }
 
 function generateErrorModal () {
-  const modalbody = document.querySelectorAll('.modal-error')
-  const errordiv = document.createElement('div')
-  errordiv.className = 'row single-div border errorMessageModal'
-  errordiv.setAttribute('style', 'background-color: red;')
-  let errorMessage = document.createElement('p')
-  errorMessage.textContent = 'The finishing date cant be earlier than the strarting'
+  const modalbody = MODALELEMENTS
+  const errordiv = document.createElement(DIVSTRING)
+  const errorMessage = document.createElement(PSTRING)
+
+  errordiv.className = ERRORDIVCLASSNAME
+  errordiv.setAttribute(STYLE, BGCOLOR)
+  errorMessage.textContent = ERRORMESSAGECONTENT
   modalbody[0].appendChild(errordiv)
   errordiv.appendChild(errorMessage)
-  document.querySelector('.classConfirm').disabled = true
+  document.querySelector(CLASSCONFIRM).disabled = TRUE
 }
 
 function isTaskNameValid () {
   /*if (userInput.validity.patternMismatch ||
     userInput.validity.valueMissing) {
     generateErrorMainBlock()
-    return false
+    return FALSEV
   } else {
     userInput.setCustomValidity('')
   }
-  return true*/
+  return TRUE*/
   return generateErrorMainBlock()
   //alert('Name shouldnt have symbols')
   //location.reload()
@@ -152,16 +194,18 @@ function isFieldValid () {
   return generateErrorModal()
 }
 
-function areDatesValid () {
+function areDatesValid (modalExists) {
   const date = document.querySelectorAll(EDITDATESTARTEND)
-  if (date[ONE_INDEX].valueAsNumber > date[ZERO_INDEX].valueAsNumber) {
-    return true
+  const ifFinishBiggerThanStart = date[ONE_INDEX].valueAsNumber > date[ZERO_INDEX].valueAsNumber
+
+  if (ifFinishBiggerThanStart) {
+    return TRUE
   }
-  return false
+  return FALSEV
 }
 
-getNameId().addEventListener('keydown', function (e) {
-  if (e.key === 'Enter') {
+getNameId().addEventListener(KEYDOWN, function (e) {
+  if (e.key === ENTER) {
     //проверить == вместо ===
     if (isTaskNameValid()) {
       let singleTask = new Task(document.querySelector(NAMEID).value, getDay(TODAY), getDay(TOMORROW))
@@ -172,9 +216,8 @@ getNameId().addEventListener('keydown', function (e) {
 })
 
 function getDay (todayTomorrow) {
-  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December']
   const dateObj = new Date()
+
   if (todayTomorrow === TOMORROW) {
     //проверить == вместо ===
     dateObj.setDate(dateObj.getDate() + ONE_INDEX)
@@ -197,77 +240,77 @@ function clearTime () {
 }
 
 function createNewTask (singleObject) {
-  let rowNewBlock = document.createElement('div')
-  rowNewBlock.className = 'row single-div'
+  let rowNewBlock = document.createElement(DIVSTRING)
+  rowNewBlock.className = ROWSINGLEDIV
 
-  let Col1DivCheck = document.createElement('div')
-  Col1DivCheck.className = 'col-1'
-  let FormCheck = document.createElement('div')
-  FormCheck.className = 'form-check'
-  let inputCheckBox = document.createElement('INPUT')
+  let Col1DivCheck = document.createElement(DIVSTRING)
+  Col1DivCheck.className = COL1DIVCHECK
+  let FormCheck = document.createElement(DIVSTRING)
+  FormCheck.className = FORMCHECK
+  let inputCheckBox = document.createElement(INPUT)
 
-  inputCheckBox.setAttribute('type', 'checkbox')
+  inputCheckBox.setAttribute(TYPE, CHECKBOX)
   //Потом нужно будет считывать из LS и ставить уникальный индетификатор
-  inputCheckBox.setAttribute('value', '')
-  inputCheckBox.setAttribute('id', `form-check-input-id${singleObject.taskId}`)
-  inputCheckBox.setAttribute('class', 'form-check-input')
-  inputCheckBox.checked = (singleObject.isChecked === 'true')
+  inputCheckBox.setAttribute(VALUE, '')
+  inputCheckBox.setAttribute(ID, `form-check-input-id${singleObject.taskId}`)
+  inputCheckBox.setAttribute(CLASS, FORMCHECKINPUT)
+  inputCheckBox.checked = (singleObject.isChecked === TRUESTRING)
   //проверить == вместо ===
 
-  let Col4Div = document.createElement('div')
-  Col4Div.className = 'col-4'
+  let Col4Div = document.createElement(DIVSTRING)
+  Col4Div.className = COL4DIVCHECK
 
-  let GroupDiv = document.createElement('div')
-  GroupDiv.className = 'input-group'
+  let GroupDiv = document.createElement(DIVSTRING)
+  GroupDiv.className = IPUTGROUP
 
-  let inputTaskName = document.createElement('INPUT')
-  inputTaskName.setAttribute('type', 'text')
+  let inputTaskName = document.createElement(INPUT)
+  inputTaskName.setAttribute(TYPE, TEXT)
   //Потом нужно будет считывать из LS и ставить уникальный индетификатор
-  inputTaskName.setAttribute('value', singleObject.taskName)
-  inputTaskName.setAttribute('class', 'form-control')
-  inputTaskName.setAttribute('readonly', true)
-  if (singleObject.isChecked === 'true') {
+  inputTaskName.setAttribute(VALUE, singleObject.taskName)
+  inputTaskName.setAttribute(CLASS, FORMCONTROL)
+  inputTaskName.setAttribute(READONLY, TRUE)
+  if (singleObject.isChecked === TRUESTRING) {
     //проверить == вместо ===
-    inputTaskName.style.textDecoration = 'line-through'
+    inputTaskName.style.textDecoration = LINETHROUGH
   } else {
     inputTaskName.style.textDecoration = ''
   }
 
-  let Col2DivStart = document.createElement('div')
-  Col2DivStart.setAttribute('class', 'col-2')
+  let Col2DivStart = document.createElement(DIVSTRING)
+  Col2DivStart.setAttribute(CLASS, COL2DIVCHECK)
 
-  let inputDateStartName = document.createElement('INPUT')
-  inputDateStartName.setAttribute('type', 'date')
-  inputDateStartName.setAttribute('name', 'name1')
-  inputDateStartName.setAttribute('readonly', true)
-  inputDateStartName.setAttribute('value', singleObject.taskDate1)
+  let inputDateStartName = document.createElement(INPUT)
+  inputDateStartName.setAttribute(TYPE, DATE)
+  inputDateStartName.setAttribute(NAME, NAME1)
+  inputDateStartName.setAttribute(READONLY, TRUE)
+  inputDateStartName.setAttribute(VALUE, singleObject.taskDate1)
 
-  let Col2DivDue = document.createElement('div')
-  Col2DivDue.setAttribute('class', 'col-2')
+  let Col2DivDue = document.createElement(DIVSTRING)
+  Col2DivDue.setAttribute(CLASS, COL2DIVCHECK)
 
-  let inputDateDueName = document.createElement('INPUT')
-  inputDateDueName.setAttribute('type', 'date')
-  inputDateDueName.setAttribute('name', 'name1')
-  inputDateDueName.setAttribute('readonly', true)
-  inputDateDueName.setAttribute('value', singleObject.taskDate2)
+  let inputDateDueName = document.createElement(INPUT)
+  inputDateDueName.setAttribute(TYPE, DATE)
+  inputDateDueName.setAttribute(NAME, NAME1)
+  inputDateDueName.setAttribute(READONLY, TRUE)
+  inputDateDueName.setAttribute(VALUE, singleObject.taskDate2)
 
-  let But1Div = document.createElement('div')
-  But1Div.setAttribute('class', 'col-1')
-  let Span1Font = document.createElement('span')
-  let I1Font = document.createElement('i')
-  I1Font.setAttribute('class', CROSS)
-  I1Font.setAttribute('aria-hidden', 'true')
-  I1Font.setAttribute('id', `delete${singleObject.taskId}`)
+  let But1Div = document.createElement(DIVSTRING)
+  But1Div.setAttribute(CLASS, COL1DIVCHECK)
+  let Span1Font = document.createElement(SPAN)
+  let I1Font = document.createElement(I)
+  I1Font.setAttribute(CLASS, CROSS)
+  I1Font.setAttribute(ARIAHIDDEN, TRUESTRING)
+  I1Font.setAttribute(ID, `delete${singleObject.taskId}`)
 
-  let Edit1Div = document.createElement('div')
-  Edit1Div.setAttribute('class', 'col-1')
-  let Span1Edit = document.createElement('span')
-  let I1Edit = document.createElement('i')
-  I1Edit.setAttribute('class', 'fa fa-pencil')
-  I1Edit.setAttribute('aria-hidden', 'true')
-  I1Edit.setAttribute('id', `edit${singleObject.taskId}`)
-  I1Edit.setAttribute('data-target', '#ModalEdit')
-  I1Edit.setAttribute('data-toggle', 'modal')
+  let Edit1Div = document.createElement(DIVSTRING)
+  Edit1Div.setAttribute(CLASS, COL1DIVCHECK)
+  let Span1Edit = document.createElement(SPAN)
+  let I1Edit = document.createElement(I)
+  I1Edit.setAttribute(CLASS, FAFAPENCIL)
+  I1Edit.setAttribute(ARIAHIDDEN, TRUESTRING)
+  I1Edit.setAttribute(ID, `edit${singleObject.taskId}`)
+  I1Edit.setAttribute(DATATARGET, MODALEDIT)
+  I1Edit.setAttribute(DATATOGGLE, MODAL)
 
   rowNewBlock.appendChild(Col1DivCheck)
   Col1DivCheck.appendChild(FormCheck)
@@ -296,7 +339,7 @@ function createNewTask (singleObject) {
   clearTime()
 }
 
-document.addEventListener('click', function (e) {
+document.addEventListener(CLICK, function (e) {
   let currectTasks = LoadObj()
   for (let i in currectTasks) {
     if (e.target.className === CROSS) {
@@ -309,8 +352,8 @@ document.addEventListener('click', function (e) {
       }
     }
   }
-  if (e.target.className === 'btn btn-primary classConfirm') {
-    const inputFields = document.querySelectorAll('#nameId, #editDateStart, #editDateEnd')
+  if (e.target.className === BUTTONCLASSCONFIRM) {
+    const inputFields = document.querySelectorAll(ALLIDS)
     const singleTask = new Task(inputFields)
     saveObj(singleTask)
     location.reload()
@@ -322,8 +365,8 @@ document.addEventListener('click', function (e) {
   } */
 })
 
-/*  document.getElementById('ConfirmChanges').addEventListener('click', function () {
-  let inputFields = document.querySelectorAll('#nameId, #editDateStart, #editDateEnd')
+/*  document.getElementById('ConfirmChanges').addEventListener(CLICK, function () {
+  let inputFields = document.querySelectorAll(ALLIDS)
   if (isFieldValid()) {
     let singleTask = new Task(inputFields)
     saveObj(singleTask)
@@ -335,18 +378,18 @@ function getLastLetterId (stringId) {
   return stringId.substr(stringId.length - 1)
 }
 
-document.addEventListener('change', function (e) {
+document.addEventListener(CHANGE, function (e) {
   //e.target.parentNode.parentNode.parentNode.children[1]
   (e.target.id).substr(e.target.id.length - 1)
   let currectTasks = LoadObj()
   for (let i in currectTasks) {
-    if (getLastLetterId(e.target.id) === currectTasks[i].taskId) {
+    if (getLastLetterId(e.target.id) === '' + currectTasks[i].taskId) {
       //проверить == вместо ===
-      if (currectTasks[i].isChecked === 'false') {
+      if (currectTasks[i].isChecked === FALSESTRING) {
         //проверить == вместо ===
-        currectTasks[i].isChecked = 'true'
+        currectTasks[i].isChecked = TRUESTRING
       } else {
-        currectTasks[i].isChecked = 'false'
+        currectTasks[i].isChecked = FALSESTRING
       }
       localStorage.setItem(LSSTRING, JSON.stringify(currectTasks))
       location.reload()
