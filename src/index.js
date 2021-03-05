@@ -42,51 +42,71 @@ class Task {
   }
 }
 
-function isInputEmpty () {
-  const namaidIsNone = document.querySelector(NAMEID).value === ''
-  if (namaidIsNone)
-    document.querySelector(PLUSBUTTON).disabled = TRUE
+function isInputEmpty (id) {
+  if (id === NAMEID) {
+    const namaidIsNone = document.querySelector(NAMEID).value === ''
+    if (namaidIsNone)
+      document.querySelector(PLUSBUTTON).disabled = TRUE
+  } else {
+    const namaidIsNone = document.querySelector(IDEDITINPUTTEXT).value === ''
+    if (namaidIsNone)
+      document.querySelector(CLASSCONFIRMCHANGES).disabled = TRUE
+  }
 }
 
 document.addEventListener(KEYUP, function (e) {
+  let deleteDivRed
+  let childNodesValue
+  const dates = document.querySelectorAll(CHANGEDATESTARTEND)
   const ePatternMisMatch = e.target.validity.patternMismatch
-  const deleteDivRed = document.querySelector(ENTERERROR) !== null && document.querySelector(NAMEID).value !== ''
-  const childNodesValue = CONTAINER.children[0].childNodes
-
-  if (ePatternMisMatch) {
-    document.querySelector(PLUSBUTTON).disabled = TRUE
-  } else {
-    document.querySelector(PLUSBUTTON).disabled = FALSEV
-    if (deleteDivRed)
-      CONTAINER.children[ZERO_INDEX].removeChild(childNodesValue[childNodesValue.length - ONE_INDEX])
+  if (e.target.id === NAMEID) {
+    deleteDivRed = document.querySelector(ENTERERROR) !== null && document.querySelector(NAMEID).value !== ''
+    childNodesValue = CONTAINER.children[0].childNodes
+    if (ePatternMisMatch) {//CLASSCONFIRMCHANGES
+      document.querySelector(PLUSBUTTON).disabled = TRUE
+    } else {
+      document.querySelector(PLUSBUTTON).disabled = FALSEV
+      if (deleteDivRed) {
+        CONTAINER.children[ZERO_INDEX].removeChild(childNodesValue[childNodesValue.length - ONE_INDEX])
+      }
+    }
   }
-  isInputEmpty()
+  if (e.target.id === IDEDITINPUTTEXTSTRING) {
+    deleteDivRed = document.querySelector(ERRORMESSAGEMODALCHANGE) !== null && document.querySelector(IDEDITINPUTTEXT).value !== ''
+    childNodesValue = MODALELEMENTSCHANGE[0].children
+    if (ePatternMisMatch) {//CLASSCONFIRMCHANGES
+      document.querySelector(CLASSCONFIRMCHANGES).disabled = TRUE
+    } else {
+      if (showBiggerNum(dates)) {
+        document.querySelector(CLASSCONFIRMCHANGES).disabled = FALSEV
+        if (deleteDivRed) {
+          MODALELEMENTSCHANGE[ZERO_INDEX].removeChild(childNodesValue[childNodesValue.length - ONE_INDEX])
+        }
+      }
+    }
+  }
+  //const deleteDivRed = document.querySelector(ENTERERROR) !== null && document.querySelector(NAMEID).value !== ''
+
+  isInputEmpty(e.target.id)
 })
 
 function isChangeDateValid(e) {
   const dates = document.querySelectorAll(CHANGEDATESTARTEND)
   let ok = TRUE
-  const errorMessageModalNotNull = document.querySelector(ERRORMESSAGEMODALCHANGE) !== null
+  const errorMessageModalNotNull = document.querySelector(ERRORMESSAGEMODALCHANGE) !== null//Доправить ERRORDIVCLASSNAMECHANGE
   const modalElementChildren = MODALELEMENTSCHANGE[0].children
-  const datesValidAndModalExistAdd = areDatesValid(CHANGE) || errorMessageModalNotNull || !ValidateInputChange()
-  const datesValidAndModalExistRemove = areDatesValid(CHANGE) && errorMessageModalNotNull && !ValidateInputChange()
+  const AllInputsValid = areDatesValid(CHANGE) || ValidateInputChange()
+  const CreateErrorMessageBox = !(!AllInputsValid || errorMessageModalNotNull)
+  const ErrorMessageBoxDelete = !(AllInputsValid || !errorMessageModalNotNull)
   //Завтра проверить на валидность все в ченже
 
-  for (let i in dates) {
-    if (dates[i].value === '') {
-      document.querySelector(CLASSCONFIRMCHANGES).disabled = TRUE
-      ok = FALSEV
-      break
-    }
-  }
-  if (ok) {
-    document.querySelector(CLASSCONFIRMCHANGES).disabled = FALSEV
-    if (!datesValidAndModalExistAdd) {
-      generateErrorModal()
-    } else {
-      if (datesValidAndModalExistRemove) {
-        MODALELEMENTSCHANGE[ZERO_INDEX].removeChild(modalElementChildren[modalElementChildren.length - ONE_INDEX])
-      }
+  if (CreateErrorMessageBox) {
+    document.querySelector(CLASSCONFIRMCHANGES).disabled = TRUE
+    generateErrorModal(CHANGE)
+  } else {
+    if (ErrorMessageBoxDelete) {
+      MODALELEMENTSCHANGE[ZERO_INDEX].removeChild(modalElementChildren[modalElementChildren.length - ONE_INDEX])
+      document.querySelector(CLASSCONFIRMCHANGES).disabled = FALSEV
     }
   }
 }
@@ -109,7 +129,7 @@ function isDateValid(e) {
   if (ok) {
     document.querySelector(CLASSCONFIRM).disabled = FALSEV
     if (!datesValidAndModalExistAdd) {
-      generateErrorModal()
+      generateErrorModal(INSERT)
     } else {
       if (datesValidAndModalExistRemove) {
         MODALELEMENTS[ZERO_INDEX].removeChild(modalElementChildren[modalElementChildren.length - ONE_INDEX])
@@ -183,17 +203,25 @@ function generateErrorMainBlock () {
   return TRUE
 }
 
-function generateErrorModal () {
-  const modalbody = MODALELEMENTS
+function generateErrorModal (modalchoose) {
+  let modalbody
   const errordiv = document.createElement(DIVSTRING)
   const errorMessage = document.createElement(PSTRING)
 
-  errordiv.className = ERRORDIVCLASSNAME
+  if (modalchoose == INSERT) {
+    modalbody = MODALELEMENTS
+    document.querySelector(CLASSCONFIRM).disabled = TRUE
+    errordiv.className = ERRORDIVCLASSNAME
+  } else {
+    modalbody = MODALELEMENTSCHANGE
+    document.querySelector(CLASSCONFIRMCHANGES).disabled = TRUE
+    errordiv.className = ERRORDIVCLASSNAMECHANGE
+  }
+
   errordiv.setAttribute(STYLE, BGCOLOR)
   errorMessage.textContent = ERRORMESSAGECONTENT
   modalbody[0].appendChild(errordiv)
   errordiv.appendChild(errorMessage)
-  document.querySelector(CLASSCONFIRM).disabled = TRUE
 }
 
 function isTaskNameValid () {
@@ -204,15 +232,21 @@ function isFieldValid () {
   return generateErrorModal()
 }
 
+function showBiggerNum (date) {
+  return date[ONE_INDEX].valueAsNumber > date[ZERO_INDEX].valueAsNumber
+}
+
 function areDatesValid (modalExists) {
+  let ifFinishBiggerThanStart
+
   if (modalExists === INSERT) {
     const date = document.querySelectorAll(EDITDATESTARTEND)
-    const ifFinishBiggerThanStart = date[ONE_INDEX].valueAsNumber > date[ZERO_INDEX].valueAsNumber
+    ifFinishBiggerThanStart = showBiggerNum(date)
   } else {
     const date = document.querySelectorAll(CHANGEDATESTARTEND)
-    const ifFinishBiggerThanStart = date[ONE_INDEX].valueAsNumber > date[ZERO_INDEX].valueAsNumber
+    ifFinishBiggerThanStart = showBiggerNum(date)
   }
-  if (ifFinishBiggerThanStart) {
+  if (!ifFinishBiggerThanStart) {
     return TRUE
   }
   return FALSEV
@@ -377,6 +411,17 @@ function createNewTask (singleObject) {
   clearTime()
 }
 
+function deleteByIndex (currectTasks, index) {
+  currectTasks.splice(index, 1)
+  localStorage.setItem(LSSTRING, JSON.stringify(currectTasks))
+}
+
+function addElementById (currectTasks, index, element) {
+  currectTasks.splice(index, 0, element)
+  localStorage.setItem(LSSTRING, JSON.stringify(currectTasks))
+  location.reload()
+}
+
 document.addEventListener(CLICK, function (e) {
   let currectTasks = LoadObj()
   const className = e.target.className
@@ -385,8 +430,7 @@ document.addEventListener(CLICK, function (e) {
   for (let i in currectTasks) {
     if (className === CROSS) {
       if (getLastLetterId(idName) === '' + currectTasks[i].taskId) {
-        currectTasks.splice(i, 1)
-        localStorage.setItem(LSSTRING, JSON.stringify(currectTasks))
+        deleteByIndex(currectTasks, i)
         location.reload()
       }
     }
@@ -397,21 +441,33 @@ document.addEventListener(CLICK, function (e) {
     saveObj(singleTask)
     location.reload()
   }
+  if (className === BUTTONCLASSCONFIRMCHANGES) {
+    const currectTasks = LoadObj()
+    const index = currectTasks.find(element => { return '' + element.taskId === getLastLetterId(e.target.offsetParent.className) })
+    const indexId = currectTasks.indexOf(index)
+    const inputFields = document.querySelectorAll(ALLIDSCHANGE)
+    const [{ value: taskName }, { value: taskDate1 }, { value: taskDate2 }] = inputFields
+
+    index.taskName = taskName
+    index.taskDate1 = taskDate1
+    index.taskDate2 = taskDate2
+    deleteByIndex(currectTasks, indexId)
+    addElementById(currectTasks, indexId, index)
+  }
   if (className === FAFAPENCIL) {
     const elementId = getLastLetterId(e.target.id)
-    const inputFieldsTaskName = document.querySelector('#' + IDEDITINPUTTEXT)
+    const inputFieldsTaskName = document.querySelector(IDEDITINPUTTEXT)
     const inputFieldsTaskDate1 = document.querySelector('#' + CHANGEEDITABLEDATESTART)
     const inputFieldsTaskDate2 = document.querySelector('#' + CHANGEEDITABLEDATEEND)
     const cretatedInputName = document.querySelector('#' + CREATEDINPUTNAME + elementId).value
     const cretatedInputDate1 = document.querySelector('#' + CREATEINPUTDATESTART + elementId).value
     const cretatedInputDate2 = document.querySelector('#' + CREATEINPUTDATEDUE + elementId).value
+    const modalChangeId = document.querySelector('.' + MODALCHANGE)
 
     inputFieldsTaskName.value = cretatedInputName
     inputFieldsTaskDate1.value = cretatedInputDate1
     inputFieldsTaskDate2.value = cretatedInputDate2
-
-    e.target
-
+    modalChangeId.className = MODALFULLCLASSNAME + elementId
   }
 })
 
