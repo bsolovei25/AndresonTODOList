@@ -11,6 +11,9 @@ class Task {
         this.access = ACCESSALL
         this.checkIfTaskIdEmpty()
         this.sortBy = NONEVALUE
+        this.filteredTask = null
+        this.filteredDate1 = null
+        this.filteredDate2 = null
       }
     } else {
       const [string] = arguments
@@ -20,6 +23,9 @@ class Task {
         this.access = ACCESSALL
         this.checkIfTaskIdEmpty()
         this.sortBy = NONEVALUE
+        this.filteredTask = null
+        this.filteredDate1 = null
+        this.filteredDate2 = null
       }
     }
   }
@@ -550,7 +556,14 @@ document.addEventListener(CLICK, function (e) {
     const getSelectEl = document.querySelector(SELECTSORTID)
     const selectedValue = getSelectEl.options[getSelectEl.selectedIndex].value
     const containerTasks = LoadObj()
-    containerTasks.forEach(elem => { elem.sortBy = selectedValue })
+    const taskConst = document.querySelector(CLASSFILTERINPUTTEXT).value
+    const date1Const = document.querySelector(FILTEREDITABLEDATESTART).value
+    const date2Const = document.querySelector(FILTEREDITABLEDATEEND).value
+    const filterTask = taskConst === '' ? null : taskConst
+    const filterDate1 = date1Const === '' ? null : date1Const
+    const filterDate2 = date2Const === '' ? null : date2Const
+
+    containerTasks.forEach(elem => { [elem.sortBy, elem.filteredTask, elem.filteredDate1, elem.filteredDate2] = [selectedValue, filterTask, filterDate1, filterDate2] })
     localStorage.setItem(LSSTRING, JSON.stringify(containerTasks))
     location.reload()
   }
@@ -626,9 +639,16 @@ function compare (firstElem, secondElem) {
 
 window.onload = function () {
   const arrofTasks = LoadObj()
+  const filteredArray = arrofTasks.filter(element => element.taskName.indexOf(element.filteredTask) + ONE_INDEX || element.taskDate1 === element.filteredDate1 || element.taskDate2 === element.filteredDate2)
+
   arrofTasks.sort(compare)
-  for (let i in arrofTasks) {
-    //createNewTask(arrofTasks[i])
-    accessRights(arrofTasks[i])
+  if (filteredArray.length === ZERO_INDEX) {
+    for (let i in arrofTasks) {
+      accessRights(arrofTasks[i])
+    }
+  } else {
+    for (let i in filteredArray) {
+      accessRights(filteredArray[i])
+    }
   }
 }
