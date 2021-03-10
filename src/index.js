@@ -124,6 +124,7 @@ function isChangeDateValid(e) {
 function isDateValid (e) {
   const dates = document.querySelectorAll(EDITDATESTARTEND)
   let ok = TRUE
+  let modalsTrue = FALSEV
   const errorMessageModalNotNull = document.querySelector(ERRORMESSAGEMODAL) !== null
   const modalElementChildren = MODALELEMENTS[0].children
   const datesValidAndModalExistAdd = !areDatesValid(INSERT) || errorMessageModalNotNull
@@ -137,13 +138,16 @@ function isDateValid (e) {
     }
   }
   if (ok) {
-    document.querySelector(CLASSCONFIRM).disabled = FALSEV
+    //document.querySelector(CLASSCONFIRM).disabled = FALSEV
     if (!datesValidAndModalExistAdd) {
       generateErrorModal(INSERT)
     } else {
       if (datesValidAndModalExistRemove) {
         MODALELEMENTS[ZERO_INDEX].removeChild(modalElementChildren[modalElementChildren.length - ONE_INDEX])
-        //document.querySelector(CLASSCONFIRM).disabled = FALSEV
+        modalsTrue = TRUE
+      }
+      if ((!errorMessageModalNotNull || modalsTrue) && datesValidAndModalExistAdd) {
+        document.querySelector(CLASSCONFIRM).disabled = FALSEV
       }
     }
   }
