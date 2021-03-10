@@ -32,7 +32,7 @@ class Task {
 
   inputUserValidation (params) {
     if (ValidateValuesClass.validationOfUserInputs(params) &&
-      ValidateValuesClass.validateIfEmpty()) {
+      ValidateValuesClass.validateIfEmpty(params)) {
       return true
     }
     return false

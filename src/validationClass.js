@@ -27,11 +27,11 @@ class ValidateValuesClass {
 
   static validateIfEmpty (args) {
     const inputFields = document.querySelectorAll(ALLINPUTSIDS)
+    const keyArgsLen = Object.keys(args).length === ONE_INDEX
 
-    inputFields.forEach(e => {
-      const eIsEmpty = e.value === ''
-
+    if (keyArgsLen) {
+      const eIsEmpty = Object.values(args)[ZERO_INDEX] !== ''
       return eIsEmpty
-    })
+    }
   }
 }
