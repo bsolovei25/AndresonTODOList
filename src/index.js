@@ -143,6 +143,7 @@ function isDateValid (e) {
     } else {
       if (datesValidAndModalExistRemove) {
         MODALELEMENTS[ZERO_INDEX].removeChild(modalElementChildren[modalElementChildren.length - ONE_INDEX])
+        //document.querySelector(CLASSCONFIRM).disabled = FALSEV
       }
     }
   }
