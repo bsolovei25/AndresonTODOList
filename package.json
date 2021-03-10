@@ -1,0 +1,28 @@
+{
+  "name": "TODOListAndresen",
+  "version": "1.0.0",
+  "description": "git clone https://github.com/bsolovei25/AndresonTODOList.git run in your browser index.html",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bsolovei25/AndresonTODOList.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bsolovei25/AndresonTODOList/issues"
+  },
+  "homepage": "https://github.com/bsolovei25/AndresonTODOList#readme",
+  "devDependencies": {
+    "eslint": "^7.20.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-standard": "^5.0.0"
+  }
+}
