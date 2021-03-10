@@ -7,11 +7,11 @@ class Task{
         this.taskDate1 = args[1].value;
         this.taskDate2 = args[2].value;
         this.isChecked = 'false'
-        if (LoadObj().length == null){
+        if (LoadObj() == null){
           this.taskId = 0
         }
         else{
-          this.taskId = LoadObj().length
+          this.taskId = LoadObj()[LoadObj().length-1].taskId+1
         }
         
       }
@@ -126,7 +126,7 @@ function createNewTask(singleObject){
     rowNewBlock.className = "row single-div";
 
     let Col1DivCheck = document.createElement("div");
-    Col1DivCheck.className = "col-4";
+    Col1DivCheck.className = "col-1";
     let FormCheck = document.createElement("div");
     FormCheck.className = "form-check";
     let inputCheckBox = document.createElement("INPUT");
@@ -179,25 +179,66 @@ function createNewTask(singleObject){
     inputDateDueName.setAttribute("readonly", true); 
     inputDateDueName.setAttribute("value", singleObject.taskDate2);
     
-   rowNewBlock.appendChild(Col1DivCheck)
-   Col1DivCheck.appendChild(FormCheck)
-   FormCheck.appendChild(inputCheckBox)
+    let But1Div = document.createElement("div");
+    But1Div.setAttribute("class", 'col-1');
+    let Span1Font = document.createElement("span");
+    let I1Font = document.createElement("i");
+    I1Font.setAttribute("class", 'fa fa-times');
+    I1Font.setAttribute("aria-hidden", 'true');
+    I1Font.setAttribute("id", `delete${singleObject.taskId}`);
+    
+    /*<button type="button" class="close" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    
+    <span style="font-size: 48px; color: Dodgerblue;">
+      <i class="fa fa-times" aria-hidden="true"></i>
+    </span>
+    */
 
-    rowNewBlock.appendChild(Col4Div)
-    Col4Div.appendChild(GroupDiv)
-    GroupDiv.appendChild(inputTaskName)
 
-    rowNewBlock.appendChild(Col2DivStart)
-    Col2DivStart.appendChild(inputDateStartName)
+   rowNewBlock.appendChild(Col1DivCheck);
+   Col1DivCheck.appendChild(FormCheck);
+   FormCheck.appendChild(inputCheckBox);
 
-    rowNewBlock.appendChild(Col2DivDue)
-    Col2DivDue.appendChild(inputDateDueName)
+    rowNewBlock.appendChild(Col4Div);
+    Col4Div.appendChild(GroupDiv);
+    GroupDiv.appendChild(inputTaskName);
 
-    nodeContainer.appendChild(rowNewBlock)
+    rowNewBlock.appendChild(Col2DivStart);
+    Col2DivStart.appendChild(inputDateStartName);
+
+    rowNewBlock.appendChild(Col2DivDue);
+    Col2DivDue.appendChild(inputDateDueName);
+
+    rowNewBlock.appendChild(But1Div);
+    But1Div.appendChild(Span1Font);
+    Span1Font.appendChild(I1Font);
+
+
+    nodeContainer.appendChild(rowNewBlock);
 
     
+    
 
-    clearTime()
+    clearTime();
+}
+
+document.addEventListener('click',function(e){
+  let currectTasks = LoadObj()
+  for (let i in currectTasks){
+    if (e.target.className == 'fa fa-times'){
+      if (getLastLetterId(e.target.id) == currectTasks[i].taskId){
+        currectTasks.splice(i,1)
+        localStorage.setItem('SetofTasks', JSON.stringify(currectTasks));
+        location.reload();
+      }
+    }
+  }
+});
+
+function getLastLetterId(stringId){
+  return stringId.substr(stringId.length - 1)
 }
 
 document.addEventListener('change',function(e){
@@ -205,7 +246,7 @@ document.addEventListener('change',function(e){
   (e.target.id).substr(e.target.id.length - 1)
   let currectTasks = LoadObj()
   for (let i in currectTasks){
-    if ((e.target.id).substr(e.target.id.length - 1) == currectTasks[i].taskId){
+    if (getLastLetterId(e.target.id) == currectTasks[i].taskId){
       if (currectTasks[i].isChecked == "false"){
         currectTasks[i].isChecked = "true"  
       }
