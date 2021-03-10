@@ -1,16 +1,16 @@
 class ValidateValuesClass {
   static validationOfUserInputs (args) {
-    const keyArgsLen = Object.keys(args).length === 1
-    const areFirstKeysEq = !typeof args[Object.keys(args)[0]] === Object.keys(args)[0]
+    const keyArgsLen = Object.keys(args).length === ONE_INDEX
+    const areFirstKeysEq = !typeof args[Object.keys(args)[ZERO_INDEX]] === Object.keys(args)[ZERO_INDEX]
 
     if (keyArgsLen) {
       if (areFirstKeysEq) {
-        throw `${args[0]} must be typed as ${Object.keys(args)[0]}`
+        throw `${args[ZERO_INDEX]} must be typed as ${Object.keys(args)[ZERO_INDEX]}`
       }
     } else {
       for (let key in args) {
         if (args[key] instanceof Array) {
-          for (let k = 0; k < args[key].length; k++) {
+          for (let k = ZERO_INDEX; k < args[key].length; k++) {
             if (args[key][k].type !== key) {
               //проверить == вместо ===
               throw `${args[key][k].value} must be typed as ${key}`
@@ -27,14 +27,11 @@ class ValidateValuesClass {
 
   static validateIfEmpty (args) {
     const inputFields = document.querySelectorAll(ALLINPUTSIDS)
+    const keyArgsLen = Object.keys(args).length === ONE_INDEX
 
-    inputFields.forEach(e => {
-      const eIsEmpty = e.value === ''
-
-      if (eIsEmpty) {
-        return FALSEV
-      }
-    })
-    return TRUE
+    if (keyArgsLen) {
+      const eIsEmpty = Object.values(args)[ZERO_INDEX] !== ''
+      return eIsEmpty
+    }
   }
 }

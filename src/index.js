@@ -10,6 +10,10 @@ class Task {
         this.isChecked = FALSESTRING
         this.access = ACCESSALL
         this.checkIfTaskIdEmpty()
+        this.sortBy = NONEVALUE
+        this.filteredTask = null
+        this.filteredDate1 = null
+        this.filteredDate2 = null
       }
     } else {
       const [string] = arguments
@@ -18,13 +22,17 @@ class Task {
         this.isChecked = FALSESTRING
         this.access = ACCESSALL
         this.checkIfTaskIdEmpty()
+        this.sortBy = NONEVALUE
+        this.filteredTask = null
+        this.filteredDate1 = null
+        this.filteredDate2 = null
       }
     }
   }
 
   inputUserValidation (params) {
     if (ValidateValuesClass.validationOfUserInputs(params) &&
-      ValidateValuesClass.validateIfEmpty()) {
+      ValidateValuesClass.validateIfEmpty(params)) {
       return true
     }
     return false
@@ -45,7 +53,7 @@ class Task {
 }
 
 function isInputEmpty (id) {
-  if (id === NAMEID) {
+  if (id === NAMEIDNAME) {
     const namaidIsNone = document.querySelector(NAMEID).value === ''
     if (namaidIsNone)
       document.querySelector(PLUSBUTTON).disabled = TRUE
@@ -61,7 +69,7 @@ document.addEventListener(KEYUP, function (e) {
   let childNodesValue
   const dates = document.querySelectorAll(CHANGEDATESTARTEND)
   const ePatternMisMatch = e.target.validity.patternMismatch
-  if (e.target.id === NAMEID) {
+  if (e.target.id === NAMEIDNAME) {
     deleteDivRed = document.querySelector(ENTERERROR) !== null && document.querySelector(NAMEID).value !== ''
     childNodesValue = CONTAINER.children[0].childNodes
     if (ePatternMisMatch) {//CLASSCONFIRMCHANGES
@@ -113,13 +121,14 @@ function isChangeDateValid(e) {
   }
 }
 
-function isDateValid(e) {
+function isDateValid (e) {
   const dates = document.querySelectorAll(EDITDATESTARTEND)
   let ok = TRUE
+  let modalsTrue = FALSEV
   const errorMessageModalNotNull = document.querySelector(ERRORMESSAGEMODAL) !== null
   const modalElementChildren = MODALELEMENTS[0].children
-  const datesValidAndModalExistAdd = areDatesValid(INSERT) || errorMessageModalNotNull
-  const datesValidAndModalExistRemove = areDatesValid(INSERT) && errorMessageModalNotNull
+  const datesValidAndModalExistAdd = !areDatesValid(INSERT) || errorMessageModalNotNull
+  const datesValidAndModalExistRemove = !areDatesValid(INSERT) && errorMessageModalNotNull
 
   for (let i in dates) {
     if (dates[i].value === '') {
@@ -129,12 +138,16 @@ function isDateValid(e) {
     }
   }
   if (ok) {
-    document.querySelector(CLASSCONFIRM).disabled = FALSEV
+    //document.querySelector(CLASSCONFIRM).disabled = FALSEV
     if (!datesValidAndModalExistAdd) {
       generateErrorModal(INSERT)
     } else {
       if (datesValidAndModalExistRemove) {
         MODALELEMENTS[ZERO_INDEX].removeChild(modalElementChildren[modalElementChildren.length - ONE_INDEX])
+        modalsTrue = TRUE
+      }
+      if ((!errorMessageModalNotNull || modalsTrue) && datesValidAndModalExistAdd) {
+        document.querySelector(CLASSCONFIRM).disabled = FALSEV
       }
     }
   }
@@ -393,13 +406,29 @@ function PenCreate (singleObject) {
   return Edit1Div
 }
 
-function BuildNewRow (rowNewBlock, Col1DivCheck, Col4Div, Col2DivStart, Col2DivDue, But1Div, Edit1Div) {
+function FilterCreate (singleObject) {
+  let Edit1Div = document.createElement(DIVSTRING)
+  Edit1Div.setAttribute(CLASS, COL1DIVCHECK)
+  let Span1Edit = document.createElement(SPAN)
+  let I1Edit = document.createElement(I)
+  I1Edit.setAttribute(CLASS, SORT)
+  I1Edit.setAttribute(ARIAHIDDEN, TRUESTRING)
+  I1Edit.setAttribute(ID, `filter${singleObject.taskId}`)
+  I1Edit.setAttribute(DATATARGET, MODALFILTER)//change
+  I1Edit.setAttribute(DATATOGGLE, MODAL)//
+  Edit1Div.appendChild(Span1Edit)
+  Span1Edit.appendChild(I1Edit)
+  return Edit1Div
+}
+
+function BuildNewRow (rowNewBlock, Col1DivCheck, Col4Div, Col2DivStart, Col2DivDue, But1Div, Edit1Div, Filter1Div) {
   rowNewBlock.appendChild(Col1DivCheck)
   rowNewBlock.appendChild(Col4Div)
   rowNewBlock.appendChild(Col2DivStart)
   rowNewBlock.appendChild(Col2DivDue)
   rowNewBlock.appendChild(But1Div)
   rowNewBlock.appendChild(Edit1Div)
+  rowNewBlock.appendChild(Filter1Div)
   CONTAINER.appendChild(rowNewBlock)
 }
 
@@ -421,7 +450,12 @@ function accessRights (singleObject) {
   if (singleObject.access === ACCESSDELETE) {
     if (singleObject.isChecked === TRUESTRING && ok) {
       ok = false
-      const indexId = currectTasks.indexOf(singleObject)
+      //const indexId = currectTasks.indexOf(singleObject)
+      const indexId = currectTasks.findIndex(function(post, index) {
+        if (post.isChecked === TRUESTRING) {
+          return true
+        }
+      })
       deleteByIndex(currectTasks, indexId)
     } else {
       createNewTask(singleObject, FLEX)
@@ -441,7 +475,8 @@ function createNewTask (singleObject, style) {
   const Col2DivDue = Date2Create(singleObject)
   const But1Div = CrossCreate(singleObject)
   const Edit1Div = PenCreate(singleObject)
-  BuildNewRow(rowNewBlock, Col1DivCheck, Col4Div, Col2DivStart, Col2DivDue, But1Div, Edit1Div)
+  const Filter1Div = FilterCreate(singleObject)
+  BuildNewRow(rowNewBlock, Col1DivCheck, Col4Div, Col2DivStart, Col2DivDue, But1Div, Edit1Div, Filter1Div)
   clearTime()
 }
 
@@ -527,6 +562,21 @@ document.addEventListener(CLICK, function (e) {
     localStorage.setItem(LSSTRING, JSON.stringify(containerTasks))
     location.reload()
   }
+  if (className === CLASSCONFIRMFILTER) {
+    const getSelectEl = document.querySelector(SELECTSORTID)
+    const selectedValue = getSelectEl.options[getSelectEl.selectedIndex].value
+    const containerTasks = LoadObj()
+    const taskConst = document.querySelector(CLASSFILTERINPUTTEXT).value
+    const date1Const = document.querySelector(FILTEREDITABLEDATESTART).value
+    const date2Const = document.querySelector(FILTEREDITABLEDATEEND).value
+    const filterTask = taskConst === '' ? null : taskConst
+    const filterDate1 = date1Const === '' ? null : date1Const
+    const filterDate2 = date2Const === '' ? null : date2Const
+
+    containerTasks.forEach(elem => { [elem.sortBy, elem.filteredTask, elem.filteredDate1, elem.filteredDate2] = [selectedValue, filterTask, filterDate1, filterDate2] })
+    localStorage.setItem(LSSTRING, JSON.stringify(containerTasks))
+    location.reload()
+  }
 })
 
 function getLastLetterId (stringId) {
@@ -551,10 +601,64 @@ document.addEventListener(CHANGE, function (e) {
   }
 })
 
+function sortTasksFirst (firstElem) {
+  return firstElem.taskName.toUpperCase()
+}
+
+function sortTasksSecond (secondElem) {
+  return secondElem.taskName.toUpperCase()
+}
+
+function sortDatesFirst (firstElem) {
+  return Date.parse(firstElem.taskDate1)
+}
+
+function sortDatesSecond (secondElem) {
+  return Date.parse(secondElem.taskDate1)
+}
+
+function compare (firstElem, secondElem) {
+  const arrofTasks = LoadObj()
+  const arrayLength = arrofTasks.length - 1
+  const sortingOption = arrofTasks[arrayLength].sortBy
+
+  //const elemA = firstElem.taskName.toUpperCase()
+  //const elemB = secondElem.taskName.toUpperCase()
+  if (sortingOption !== NONEVALUE) {
+    let elemA
+    let elemB
+    switch (sortingOption) {
+      case SORTTASKS:
+        elemA = sortTasksFirst(firstElem)
+        elemB = sortTasksSecond(secondElem)
+        break
+      case SORTDATES:
+        elemA = sortDatesFirst(firstElem)
+        elemB = sortDatesSecond(secondElem)
+        break
+    }
+    let comparison = 0
+    if (elemA > elemB) {
+      comparison = 1
+    } else if (elemA < elemB) {
+      comparison = -1
+    }
+    return comparison
+  }
+}
+
 window.onload = function () {
-  let arrofTasks = LoadObj()
-  for (let i in arrofTasks) {
-    //createNewTask(arrofTasks[i])
-    accessRights(arrofTasks[i])
+  const arrofTasks = LoadObj()
+  const filteredArray = arrofTasks.filter(element => element.taskName.indexOf(element.filteredTask) + ONE_INDEX || element.taskDate1 === element.filteredDate1 || element.taskDate2 === element.filteredDate2)
+
+  arrofTasks.sort(compare)
+  if (filteredArray.length === ZERO_INDEX) {
+    for (let i in arrofTasks) {
+      accessRights(arrofTasks[i])
+    }
+  } else {
+    for (let i in filteredArray) {
+      accessRights(filteredArray[i])
+    }
   }
 }
