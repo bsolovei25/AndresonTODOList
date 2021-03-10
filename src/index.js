@@ -445,7 +445,12 @@ function accessRights (singleObject) {
   if (singleObject.access === ACCESSDELETE) {
     if (singleObject.isChecked === TRUESTRING && ok) {
       ok = false
-      const indexId = currectTasks.indexOf(singleObject)
+      //const indexId = currectTasks.indexOf(singleObject)
+      const indexId = currectTasks.findIndex(function(post, index) {
+        if (post.isChecked === TRUESTRING) {
+          return true
+        }
+      })
       deleteByIndex(currectTasks, indexId)
     } else {
       createNewTask(singleObject, FLEX)
