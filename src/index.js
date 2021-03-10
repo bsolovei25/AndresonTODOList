@@ -8,6 +8,7 @@ class Task {
       if (this.inputUserValidation({ string, date })) {
         [this.taskName, this.taskDate1, this.taskDate2] = [taskName, taskDate1, taskDate2]
         this.isChecked = FALSESTRING
+        this.access = ACCESSALL
         this.checkIfTaskIdEmpty()
       }
     } else {
@@ -15,6 +16,7 @@ class Task {
       if (this.inputUserValidation({ string })) {
         [this.taskName, this.taskDate1, this.taskDate2] = arguments
         this.isChecked = FALSESTRING
+        this.access = ACCESSALL
         this.checkIfTaskIdEmpty()
       }
     }
@@ -285,9 +287,11 @@ function clearTime () {
   })
 }
 
-function RowNewBLockCreate () {
+function RowNewBLockCreate (style) {
   let rowNewBlock = document.createElement(DIVSTRING)
   rowNewBlock.className = ROWSINGLEDIV
+  rowNewBlock.setAttribute(STYLE, style)
+  //errorMessage.setAttribute(STYLE, errorMessageStyle)
   return rowNewBlock
 }
 
@@ -399,8 +403,38 @@ function BuildNewRow (rowNewBlock, Col1DivCheck, Col4Div, Col2DivStart, Col2DivD
   CONTAINER.appendChild(rowNewBlock)
 }
 
-function createNewTask (singleObject) {
-  const rowNewBlock = RowNewBLockCreate()
+function accessRights (singleObject) {
+  const currectTasks = LoadObj()
+  let ok = TRUE
+  if (singleObject.access === ACCESSALL && ok) {
+    ok = false
+    createNewTask(singleObject, FLEX)
+  }
+  if (singleObject.access === ACCESSACTIVE && singleObject.isChecked === FALSESTRING && ok) {
+    createNewTask(singleObject, FLEX)
+    ok = false
+  }
+  if (singleObject.access === ACCESSCOMPLETED && singleObject.isChecked === TRUESTRING && ok) {
+    createNewTask(singleObject, FLEX)
+    ok = false
+  }
+  if (singleObject.access === ACCESSDELETE) {
+    if (singleObject.isChecked === TRUESTRING && ok) {
+      ok = false
+      const indexId = currectTasks.indexOf(singleObject)
+      deleteByIndex(currectTasks, indexId)
+    } else {
+      createNewTask(singleObject, FLEX)
+      ok = false
+    }
+  }
+  if (ok) {
+    createNewTask(singleObject, NONE)
+  }
+}
+
+function createNewTask (singleObject, style) {
+  const rowNewBlock = RowNewBLockCreate(style)
   const Col1DivCheck = checkBoxCreate(singleObject)
   const Col4Div = checkInputCreate(singleObject)
   const Col2DivStart = Date1Create(singleObject)
@@ -469,6 +503,30 @@ document.addEventListener(CLICK, function (e) {
     inputFieldsTaskDate2.value = cretatedInputDate2
     modalChangeId.className = MODALFULLCLASSNAME + elementId
   }
+  if (className === SHOWALLBUTTONS) {
+    const containerTasks = LoadObj()
+    containerTasks.forEach(elem => { elem.access = ACCESSALL })
+    localStorage.setItem(LSSTRING, JSON.stringify(containerTasks))
+    location.reload()
+  }
+  if (className === SHOWALLACTIVEBUTTONS) {
+    const containerTasks = LoadObj()
+    containerTasks.forEach(elem => { elem.access = ACCESSACTIVE })
+    localStorage.setItem(LSSTRING, JSON.stringify(containerTasks))
+    location.reload()
+  }
+  if (className === SHOWALLCOMPLETEDBUTTONS) {
+    const containerTasks = LoadObj()
+    containerTasks.forEach(elem => { elem.access = ACCESSCOMPLETED })
+    localStorage.setItem(LSSTRING, JSON.stringify(containerTasks))
+    location.reload()
+  }
+  if (className === DELETEALLCOMPLETEDBUTTONS) {
+    const containerTasks = LoadObj()
+    containerTasks.forEach(elem => { elem.access = ACCESSDELETE })
+    localStorage.setItem(LSSTRING, JSON.stringify(containerTasks))
+    location.reload()
+  }
 })
 
 function getLastLetterId (stringId) {
@@ -496,6 +554,7 @@ document.addEventListener(CHANGE, function (e) {
 window.onload = function () {
   let arrofTasks = LoadObj()
   for (let i in arrofTasks) {
-    createNewTask(arrofTasks[i])
+    //createNewTask(arrofTasks[i])
+    accessRights(arrofTasks[i])
   }
 }
