@@ -31,10 +31,7 @@ class ValidateValuesClass {
     inputFields.forEach(e => {
       const eIsEmpty = e.value === ''
 
-      if (eIsEmpty) {
-        return FALSEV
-      }
+      return eIsEmpty
     })
-    return TRUE
   }
 }
